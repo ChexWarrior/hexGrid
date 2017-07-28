@@ -11,6 +11,7 @@
      * Each element represents the number of hexes in a row
      * for the first half of the grid, after the mid point it
      * repeats row definitions in reverse order
+     * must be of an odd length
      */
     rowDefinitions: [4, 5, 6, 7, 8, 7, 6, 5, 4]
   });
@@ -21,7 +22,12 @@
     let {degrees, center, radius, rowDefinitions} = params;
     let hexagon;
     let hexGrid = new Map();
+
+    // holds the center x coordinate of the longest (middle) row's first hex
     let middleRowXOffset;
+
+    // must be of an odd length
+    if(rowDefinitions.length % 2 == 0) return false;
 
     // The height of a hexagon is it's radius * 2
     const hexagonHeight = radius * 2;
@@ -29,7 +35,9 @@
     // The width of a hexagon is sqrt(3)/2 * height
     const hexagonWidth = Math.sqrt(3) / 2 * hexagonHeight;
     const halfHexWidth = hexagonWidth / 2;
-    const initialX = center.x;
+
+    // the center x coordinate of the first row's first hex
+    const firstRowXOffset = center.x;
 
     // each row is larger than last, becomes false after middle row
     let rowsAscending = true;
@@ -38,10 +46,10 @@
     for (let currentRow = 0; currentRow < rowDefinitions.length; currentRow += 1) {
       let numCols = rowDefinitions[currentRow];
       
+      // After the middle column initial column placment will move towards center of grid
       if(currentRow === middleRowNum) {
         rowsAscending = false;
         middleRowXOffset = center.x + halfHexWidth;
-        console.log(middleRowXOffset);
       } 
 
       for (let currentCol = 0; currentCol < numCols; currentCol += 1) {
@@ -55,7 +63,7 @@
         hexagon = setupHex(hexagon);
         displayHexCoordinates({ 
           hexagon, 
-          hexCenter: center,
+          center,
           row: currentRow,
           col: currentCol
         });
@@ -70,12 +78,12 @@
       // Vertical distance between two hexes is height * 3/4
       center.y += hexagonHeight * 3 / 4;
 
-      // equal to half hexagon width * row num
+      // while rows are ascending we move each rows initial hex away from center
       if(rowsAscending) {
-        center.x = initialX - (halfHexWidth * (currentRow + 1));
+        center.x = firstRowXOffset - halfHexWidth * (currentRow + 1);
       } else {
         center.x = 
-          middleRowXOffset + (halfHexWidth * Math.abs((rowDefinitions.length - (middleRowNum  + currentRow + 1))));
+          middleRowXOffset + halfHexWidth * Math.abs(rowDefinitions.length - (middleRowNum + currentRow + 1));
       }
     }
 
@@ -141,8 +149,8 @@
   }
 
   function displayHexCoordinates(params) {
-    let {hexagon, hexCenter, row, col} = params;
-    ctx.text(hexCenter.x, hexCenter.y, `${row},${col}`);
+    let {hexagon, center, row, col} = params;
+    ctx.text(center.x, center.y, `${row},${col}`);
   }
 
 }(chance, Snap));
