@@ -1,3 +1,4 @@
+// Good Hexagon Info: http://www.redblobgames.com/grids/hexagons/
 (function() {
   const ctx = Snap("#map");
   createHexGrid({
@@ -13,6 +14,14 @@
 function createHexGrid(params) {
   let {degrees, center, radius, numRows, numCols, ctx} = params;
   let hexagon;
+
+  // The height of a hexagon is it's radius * 2
+  const hexagonHeight = radius * 2;
+
+  // The width of a hexagon is sqrt(3)/2 * height
+  const hexagonWidth = Math.sqrt(3) / 2 * hexagonHeight;
+  const initialX = center.x;
+
   for(let i = 0; i < numRows; i += 1) {
     for(let j = 0; j < numCols; j += 1) {
       let hexagonPoints = determinePolygonPoints({degrees, center, radius});
@@ -22,15 +31,19 @@ function createHexGrid(params) {
         fill: '#' + Math.floor(Math.random() * 16777215).toString(16),
         stroke: '#000'
       });
-      // ctx.fillStyle = 'black';
-      // ctx.font = '12px';
-      // ctx.fillText(`${i},${j}`, center.x, center.y);
-      center.x += 86.6;
+
+      // Horizontal distance between two hexes is the width of a hexagon
+      center.x += hexagonWidth;
     }
 
-    // vertical distance between two hexes is radius * 3/4
-    center.y += 75;
-    center.x = (i % 2 === 1) ? 50 : 93.3;
+    // Vertical distance between two hexes is height * 3/4
+    center.y += hexagonHeight * 3/4;
+
+    /**
+     * Even rows should have the initial horizontal offset while odd rows
+     * need to equal to the initial offset plus half the width of a hexagon
+     */
+    center.x = (i % 2 === 1) ? initialX : initialX + (hexagonWidth / 2);
   }
 }
 
@@ -51,6 +64,7 @@ function determinePolygonPoints(params) {
 function createPolygon(points) {
   let firstPoint = true;
   let polygon = '';
+  
   for(let {x, y} of points) {
     if(firstPoint) {
       polygon += `M${x},${y}`;
