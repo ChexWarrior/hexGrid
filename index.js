@@ -1,64 +1,23 @@
 // Good Hexagon Info: http://www.redblobgames.com/grids/hexagons/
 
-(function (chance, Snap) {
+(function (chance, Snap, Honeycomb) {
+
+  const {Grid, HEX_ORIENTATIONS} = Honeycomb;
   const ctx = Snap("#map");
-  let hexGrid = createHexGrid({
-    degrees: [30, 90, 150, 210, 270, 330, 390],
-    center: {x: 43.3, y: 50},
-    radius: 50,
-    numRows: 10,
-    numCols: 8
-  });
+  const grid = Grid({size: 50, origin: [-450, -450]});
+  const hexGrid = grid.hexagon({radius: 5})
 
-  console.log('Hex Grid', hexGrid);
+  for(let hex of hexGrid) {
+    let point = grid.hexToPoint(hex);
 
-  function createHexGrid(params) {
-    let {degrees, center, radius, numRows, numCols} = params;
-    let hexagon;
-    let hexGrid = new Map();
+    let hexPoints = determinePolygonPoints({
+      degrees: [30, 90, 150, 210, 270, 330, 390],
+      center: point,
+      radius: 50
+    });
 
-    // The height of a hexagon is it's radius * 2
-    const hexagonHeight = radius * 2;
-
-    // The width of a hexagon is sqrt(3)/2 * height
-    const hexagonWidth = Math.sqrt(3) / 2 * hexagonHeight;
-    const initialX = center.x;
-
-    for (let currentRow = 0; currentRow < numRows; currentRow += 1) {
-      for (let currentCol = 0; currentCol < numCols; currentCol += 1) {
-        let hexagonPoints = determinePolygonPoints({
-          degrees,
-          center,
-          radius
-        });
-
-        hexagon = ctx.path(createPolygon(hexagonPoints));
-        hexagon = setupHex(hexagon);
-        displayHexCoordinates({ 
-          hexagon, 
-          hexCenter: center,
-          row: currentRow,
-          col: currentCol
-        });
-
-        // store each hex in map
-        hexGrid.set({row: currentRow, col: currentCol}, hexagon);
-
-        // Horizontal distance between two hexes is the width of a hexagon
-        center.x += hexagonWidth;
-      }
-
-      // Vertical distance between two hexes is height * 3/4
-      center.y += hexagonHeight * 3 / 4;
-
-      /**
-       * Even rows should have the initial horizontal offset while odd rows
-       * need to equal to the initial offset plus half the width of a hexagon
-       */
-      center.x = (currentRow % 2 === 1) ? initialX : initialX + (hexagonWidth / 2);
-    }
-
-    return hexGrid;
+    let hexPath = ctx.path(createPolygon(hexPoints));
+    setupHex(hexPath);
   }
 
   function determinePolygonPoints(params) {
@@ -124,10 +83,5 @@
 
     return hexagon;
   }
-
-  function displayHexCoordinates(params) {
-    let {hexagon, hexCenter, row, col} = params;
-    ctx.text(hexCenter.x, hexCenter.y, `${row},${col}`);
-  }
-
-}(chance, Snap));
+  
+}(chance, Snap, Honeycomb));
