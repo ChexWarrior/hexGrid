@@ -4,25 +4,16 @@
   const ctx = Snap("#map");
   let hexGrid = createHexGrid({
     degrees: [30, 90, 150, 210, 270, 330, 390],
-    center: {x: 50, y: 50},
+    center: {x: 43.3, y: 50},
     radius: 50,
     numRows: 10,
-    numCols: 8,
-    ctx
+    numCols: 8
   });
 
-  console.log(hexGrid);
-
+  console.log('Hex Grid', hexGrid);
 
   function createHexGrid(params) {
-    let {
-      degrees,
-      center,
-      radius,
-      numRows,
-      numCols,
-      ctx
-    } = params;
+    let {degrees, center, radius, numRows, numCols} = params;
     let hexagon;
     let hexGrid = new Map();
 
