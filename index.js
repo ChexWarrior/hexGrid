@@ -1,12 +1,18 @@
 (function() {
   const ctx = Snap("#map");
-  let degrees = [30, 90, 150, 210, 270, 330, 390];
-  let center = {x: 50, y: 50};
-  let radius = 50;
+  createHexGrid({
+    degrees: [30, 90, 150, 210, 270, 330, 390],
+    center: {x: 50, y: 50},
+    radius: 50,
+    numRows: 5,
+    numCols: 5,
+    ctx
+  });
+}());
+
+function createHexGrid(params) {
+  let {degrees, center, radius, numRows, numCols, ctx} = params;
   let hexagon;
-  let numRows = 5;
-  let numCols = 5;
-  
   for(let i = 0; i < numRows; i += 1) {
     for(let j = 0; j < numCols; j += 1) {
       let hexagonPoints = determinePolygonPoints({degrees, center, radius});
@@ -26,8 +32,7 @@
     center.y += 75;
     center.x = (i % 2 === 1) ? 50 : 93.3;
   }
-
-}());
+}
 
 function determinePolygonPoints(params) {
   let {degrees, center, radius} = params;
