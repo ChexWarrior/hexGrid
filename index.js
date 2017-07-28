@@ -1,23 +1,37 @@
 // Good Hexagon Info: http://www.redblobgames.com/grids/hexagons/
 
-(function (chance, Snap, Honeycomb) {
+(function(chance, Snap, Honeycomb) {
 
   const {Grid, HEX_ORIENTATIONS} = Honeycomb;
   const ctx = Snap("#map");
-  const grid = Grid({size: 50, origin: [-250, -250]});
-  const hexGrid = grid.rectangle({width: 5, height: 5});
+  let hexes = buildHexRectangle(
+    Grid({size: 50, origin: [-250, -250]})
+  );
 
-  for(let hex of hexGrid) {
-    let point = grid.hexToPoint(hex);
+  console.log(hexes);
 
-    let hexPoints = determinePolygonPoints({
-      degrees: [30, 90, 150, 210, 270, 330, 390],
-      center: point,
-      radius: 50
-    });
+  function buildHexRectangle(grid) {
+    const hexes = new Map();
+    const rectangle = grid.rectangle({width: 5, height: 5});
 
-    let hexPath = ctx.path(createPolygon(hexPoints));
-    setupHex(hexPath);
+    for(let hex of rectangle) {
+      let {x, y, z} = hex;
+      let point = grid.hexToPoint(hex);
+      let hexPoints = determinePolygonPoints({
+        degrees: [30, 90, 150, 210, 270, 330, 390],
+        center: point,
+        radius: 50
+      });
+
+      // store hex info
+      hexes.set({x, y, z}, {});
+
+      let hexPath = ctx.path(createPolygon(hexPoints));
+      setupHex(hexPath);
+      displayCoords(hex, point);
+    }
+
+    return hexes;
   }
 
   function determinePolygonPoints(params) {
@@ -28,10 +42,7 @@
     for (let i = 0; i < degrees.length; i += 1) {
       x = center.x + radius * Math.cos(degrees[i] * (Math.PI / 180));
       y = center.y + radius * Math.sin(degrees[i] * (Math.PI / 180));
-      polygonPoints.push({
-        x,
-        y
-      });
+      polygonPoints.push({x, y});
     }
 
     return polygonPoints;
@@ -51,6 +62,11 @@
     }
 
     return polygon;
+  }
+
+  function displayCoords(hex, center) {
+    let {x, y, z} = hex;
+    ctx.text(center.x - 20, center.y, `${x},${y},${z}`);
   }
 
   function setupHex(hexagon) {
