@@ -24,7 +24,7 @@
       });
 
       // store hex info
-      hexes.set({x, y, z}, {});
+      hexes.set({x, y, z}, {hex});
 
       let hexPath = ctx.path(createPolygon(hexPoints));
       setupHex(hexPath);
