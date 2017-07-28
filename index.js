@@ -1,19 +1,22 @@
 // Good Hexagon Info: http://www.redblobgames.com/grids/hexagons/
 (function() {
   const ctx = Snap("#map");
-  createHexGrid({
+  let hexGrid = createHexGrid({
     degrees: [30, 90, 150, 210, 270, 330, 390],
     center: {x: 50, y: 50},
     radius: 50,
-    numRows: 5,
-    numCols: 5,
+    numRows: 10,
+    numCols: 8,
     ctx
   });
+
+  console.log(hexGrid);
 }());
 
 function createHexGrid(params) {
   let {degrees, center, radius, numRows, numCols, ctx} = params;
   let hexagon;
+  let hexGrid = new Map();
 
   // The height of a hexagon is it's radius * 2
   const hexagonHeight = radius * 2;
@@ -22,15 +25,12 @@ function createHexGrid(params) {
   const hexagonWidth = Math.sqrt(3) / 2 * hexagonHeight;
   const initialX = center.x;
 
-  for(let i = 0; i < numRows; i += 1) {
-    for(let j = 0; j < numCols; j += 1) {
+  for(let currentRow = 0; currentRow < numRows; currentRow += 1) {
+    for(let currentCol = 0; currentCol < numCols; currentCol += 1) {
       let hexagonPoints = determinePolygonPoints({degrees, center, radius});
-      console.log(`Row:${i} Col:${j}`, hexagonPoints);
+      //console.log(`Row:${currentRow} Col:${currentCol}`, hexagonPoints);
       hexagon = ctx.path(createPolygon(hexagonPoints));
-      hexagon.attr({
-        fill: '#' + Math.floor(Math.random() * 16777215).toString(16),
-        stroke: '#000'
-      });
+      hexGrid.set({row: currentRow, col: currentCol}, setupHex(hexagon));
 
       // Horizontal distance between two hexes is the width of a hexagon
       center.x += hexagonWidth;
@@ -43,8 +43,10 @@ function createHexGrid(params) {
      * Even rows should have the initial horizontal offset while odd rows
      * need to equal to the initial offset plus half the width of a hexagon
      */
-    center.x = (i % 2 === 1) ? initialX : initialX + (hexagonWidth / 2);
+    center.x = (currentRow % 2 === 1) ? initialX : initialX + (hexagonWidth / 2);
   }
+
+  return hexGrid;
 }
 
 function determinePolygonPoints(params) {
@@ -64,7 +66,7 @@ function determinePolygonPoints(params) {
 function createPolygon(points) {
   let firstPoint = true;
   let polygon = '';
-  
+
   for(let {x, y} of points) {
     if(firstPoint) {
       polygon += `M${x},${y}`;
