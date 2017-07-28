@@ -4,27 +4,46 @@
   const ctx = Snap("#map");
   let hexGrid = createHexGrid({
     degrees: [30, 90, 150, 210, 270, 330, 390],
-    center: {x: 43.3, y: 50},
+    center: {x: 250, y: 50},
     radius: 50,
-    numRows: 10,
-    numCols: 8
+
+    /**
+     * Each element represents the number of hexes in a row
+     * for the first half of the grid, after the mid point it
+     * repeats row definitions in reverse order
+     */
+    rowDefinitions: [4, 5, 6, 7, 8, 7, 6, 5, 4]
   });
 
   console.log('Hex Grid', hexGrid);
 
   function createHexGrid(params) {
-    let {degrees, center, radius, numRows, numCols} = params;
+    let {degrees, center, radius, rowDefinitions} = params;
     let hexagon;
     let hexGrid = new Map();
+    let middleRowXOffset;
 
     // The height of a hexagon is it's radius * 2
     const hexagonHeight = radius * 2;
 
     // The width of a hexagon is sqrt(3)/2 * height
     const hexagonWidth = Math.sqrt(3) / 2 * hexagonHeight;
+    const halfHexWidth = hexagonWidth / 2;
     const initialX = center.x;
 
-    for (let currentRow = 0; currentRow < numRows; currentRow += 1) {
+    // each row is larger than last, becomes false after middle row
+    let rowsAscending = true;
+    let middleRowNum = Math.floor(rowDefinitions.length / 2);
+
+    for (let currentRow = 0; currentRow < rowDefinitions.length; currentRow += 1) {
+      let numCols = rowDefinitions[currentRow];
+      
+      if(currentRow === middleRowNum) {
+        rowsAscending = false;
+        middleRowXOffset = center.x + halfHexWidth;
+        console.log(middleRowXOffset);
+      } 
+
       for (let currentCol = 0; currentCol < numCols; currentCol += 1) {
         let hexagonPoints = determinePolygonPoints({
           degrees,
@@ -51,11 +70,13 @@
       // Vertical distance between two hexes is height * 3/4
       center.y += hexagonHeight * 3 / 4;
 
-      /**
-       * Even rows should have the initial horizontal offset while odd rows
-       * need to equal to the initial offset plus half the width of a hexagon
-       */
-      center.x = (currentRow % 2 === 1) ? initialX : initialX + (hexagonWidth / 2);
+      // equal to half hexagon width * row num
+      if(rowsAscending) {
+        center.x = initialX - (halfHexWidth * (currentRow + 1));
+      } else {
+        center.x = 
+          middleRowXOffset + (halfHexWidth * Math.abs((rowDefinitions.length - (middleRowNum  + currentRow + 1))));
+      }
     }
 
     return hexGrid;
@@ -73,10 +94,7 @@
     for (let i = 0; i < degrees.length; i += 1) {
       x = center.x + radius * Math.cos(degrees[i] * (Math.PI / 180));
       y = center.y + radius * Math.sin(degrees[i] * (Math.PI / 180));
-      polygonPoints.push({
-        x,
-        y
-      });
+      polygonPoints.push({x, y});
     }
 
     return polygonPoints;
@@ -86,10 +104,7 @@
     let firstPoint = true;
     let polygon = '';
 
-    for (let {
-        x,
-        y
-      } of points) {
+    for (let {x, y} of points) {
       if (firstPoint) {
         polygon += `M${x},${y}`;
         firstPoint = false;
