@@ -40,19 +40,18 @@
           center,
           radius
         });
-        //console.log(`Row:${currentRow} Col:${currentCol}`, hexagonPoints);
+
         hexagon = ctx.path(createPolygon(hexagonPoints));
-        hexGrid.set({
-          row: currentRow,
-          col: currentCol
-        }, setupHex(hexagon));
-        
+        hexagon = setupHex(hexagon);
         displayHexCoordinates({ 
           hexagon, 
           hexCenter: center,
           row: currentRow,
           col: currentCol
         });
+
+        // store each hex in map
+        hexGrid.set({row: currentRow, col: currentCol}, hexagon);
 
         // Horizontal distance between two hexes is the width of a hexagon
         center.x += hexagonWidth;
