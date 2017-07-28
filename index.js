@@ -76,3 +76,27 @@ function createPolygon(points) {
 
   return polygon;
 }
+
+function setupHex(hexagon) {
+  // style hex
+  let hexColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+  hexagon.attr({
+    fill: hexColor,
+    stroke: '#000'
+  });
+
+  // events
+  hexagon.mouseover(() => {
+    hexagon.attr({
+      fill: '#FFF'
+    });
+  });
+
+  hexagon.mouseout(() => {
+    hexagon.attr({
+      fill: hexColor
+    });
+  });
+
+  return hexagon;
+}
