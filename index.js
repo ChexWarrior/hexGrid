@@ -4,8 +4,8 @@
 
   const {Grid, HEX_ORIENTATIONS} = Honeycomb;
   const ctx = Snap("#map");
-  const grid = Grid({size: 50, origin: [-450, -450]});
-  const hexGrid = grid.hexagon({radius: 5})
+  const grid = Grid({size: 50, origin: [-250, -250]});
+  const hexGrid = grid.rectangle({width: 5, height: 5});
 
   for(let hex of hexGrid) {
     let point = grid.hexToPoint(hex);
@@ -21,11 +21,7 @@
   }
 
   function determinePolygonPoints(params) {
-    let {
-      degrees,
-      center,
-      radius
-    } = params;
+    let {degrees, center, radius} = params;
     let polygonPoints = [];
     let x, y;
 
@@ -45,10 +41,7 @@
     let firstPoint = true;
     let polygon = '';
 
-    for (let {
-        x,
-        y
-      } of points) {
+    for (let {x, y} of points) {
       if (firstPoint) {
         polygon += `M${x},${y}`;
         firstPoint = false;
@@ -83,5 +76,5 @@
 
     return hexagon;
   }
-  
+
 }(chance, Snap, Honeycomb));
