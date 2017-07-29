@@ -56,6 +56,8 @@
         this.hexPath.attr({
           fill: '#FFF'
         });
+
+        ctx.text()
       });
 
       this.hexPath.mouseout(() => {
@@ -121,6 +123,7 @@
         let hexPath = ctx.path(this.createHexagon(hexPoints));
         
         // store hex info
+        hex.center = point;
         board.setHex(x, y, z, new BoardUnit(hexPath, hex, board));
       }
 
