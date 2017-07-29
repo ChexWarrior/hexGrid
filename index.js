@@ -2,16 +2,54 @@
 
 (function(chance, Snap, Honeycomb) {
 
-  const {Grid, HEX_ORIENTATIONS} = Honeycomb;
-  const ctx = Snap("#map");
-  let hexes = buildHexRectangle(
-    Grid({size: 50, origin: [-250, -250]})
-  );
+  class SpaceCollection {
+    constructor(hexes) {
+      this.map = hexes;
+    }
 
-  console.log(hexes);
+    getHex(x, y, z) {
+      return this.map.get({x, y, z});
+    }
+
+    setHex(x, y, z, hex) {
+      this.map.set({x, y, z}, hex);
+    }
+  }
+
+  class Space {
+    constructor(hexPath, hexInfo, hexMap) {
+      this.path = hexPath;
+      this.info = hexInfo;
+      this.map = hexMap;
+      this.setup();
+    }
+
+    setup() {
+      let hexColor = chance.color({format: 'hex'});
+      this.path.attr({
+        fill: hexColor,
+        stroke: '#000'
+      });
+
+      // events
+      this.path.mouseover(() => {
+        this.path.attr({
+          fill: '#FFF'
+        });
+      });
+
+      this.path.mouseout(() => {
+        this.path.attr({
+          fill: hexColor
+        });
+      });
+    }
+  }
+
+ // console.log(hexes);
 
   function buildHexRectangle(grid) {
-    const hexes = new Map();
+    const hexCollection = new SpaceCollection(new Map());
     const rectangle = grid.rectangle({width: 5, height: 5});
 
     for(let hex of rectangle) {
@@ -23,15 +61,14 @@
         radius: 50
       });
 
-      // store hex info
-      hexes.set({x, y, z}, {hex});
-
       let hexPath = ctx.path(createPolygon(hexPoints));
-      setupHex(hexPath);
       displayCoords(hex, point);
+      
+      // store hex info
+      hexCollection.setHex(x, y, z, new Space(hexPath, hex, hexCollection));
     }
 
-    return hexes;
+    return hexCollection;
   }
 
   function determinePolygonPoints(params) {
@@ -69,28 +106,12 @@
     ctx.text(center.x - 20, center.y, `${x},${y},${z}`);
   }
 
-  function setupHex(hexagon) {
-    // style hex
-    let hexColor = chance.color({format: 'hex'});
-    hexagon.attr({
-      fill: hexColor,
-      stroke: '#000'
-    });
+  const {Grid, HEX_ORIENTATIONS} = Honeycomb;
+  const ctx = Snap("#map");
+  let hexCollection = buildHexRectangle(
+    Grid({size: 50, origin: [-250, -250]})
+  );
 
-    // events
-    hexagon.mouseover(() => {
-      hexagon.attr({
-        fill: '#FFF'
-      });
-    });
-
-    hexagon.mouseout(() => {
-      hexagon.attr({
-        fill: hexColor
-      });
-    });
-
-    return hexagon;
-  }
+  console.log(hexCollection);
 
 }(chance, Snap, Honeycomb));
