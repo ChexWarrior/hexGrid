@@ -3,16 +3,29 @@
 (function(chance, Snap, Honeycomb) {
 
   class SpaceCollection {
-    constructor(hexes) {
-      this.map = hexes;
+    constructor(Hex) {
+      this.Hex = Hex;
+      this.map = new Map();
     }
 
     getHex(x, y, z) {
-      return this.map.get({x, y, z});
+      return this.map.get(`${x}${y}${z}`);
     }
 
     setHex(x, y, z, hex) {
-      this.map.set({x, y, z}, hex);
+      //console.log(`Set hex ${x}, ${y}, ${z}`);
+      this.map.set(`${x}${y}${z}`, hex);
+    }
+
+    selectAdjHexes(targetHex) {
+      let {x, y, z} = targetHex;
+      console.log(`Select Adj Hexes called by Hex: ${x}, ${y}, ${z}`);
+      //this.sayWord('hi');
+      for(let neighbor of this.Hex.neighbors(targetHex)) {
+        let {x, y, z} = neighbor;
+        let adjHex = this.getHex(x, y, z);
+        if(adjHex) adjHex.select();
+      }
     }
   }
 
@@ -22,6 +35,13 @@
       this.info = hexInfo;
       this.map = hexMap;
       this.setup();
+    }
+
+    select() {
+      this.path.attr({
+        stroke: 'red',
+        strokeWidth: 2
+      });
     }
 
     setup() {
@@ -43,13 +63,17 @@
           fill: hexColor
         });
       });
+
+      this.path.click(() => {
+        this.map.selectAdjHexes(this.info);
+      });
     }
   }
 
  // console.log(hexes);
 
   function buildHexRectangle(grid) {
-    const hexCollection = new SpaceCollection(new Map());
+    const hexCollection = new SpaceCollection(grid.Hex);
     const rectangle = grid.rectangle({width: 5, height: 5});
 
     for(let hex of rectangle) {
