@@ -13,14 +13,14 @@
     }
 
     setHex(x, y, z, hex) {
-      //console.log(`Set hex ${x}, ${y}, ${z}`);
       this.map.set(`${x}${y}${z}`, hex);
     }
 
     selectAdjHexes(targetHex) {
+      // TODO: Cache the result...
       let {x, y, z} = targetHex;
       console.log(`Select Adj Hexes called by Hex: ${x}, ${y}, ${z}`);
-      //this.sayWord('hi');
+      
       for(let neighbor of this.Hex.neighbors(targetHex)) {
         let {x, y, z} = neighbor;
         let adjHex = this.getHex(x, y, z);
@@ -46,6 +46,7 @@
 
     setup() {
       let hexColor = chance.color({format: 'hex'});
+      let text = null;
       this.hexPath.attr({
         fill: hexColor,
         stroke: '#000'
@@ -57,7 +58,9 @@
           fill: '#FFF'
         });
 
-        ctx.text()
+        // temporary
+        document.getElementById('hexId').innerHTML = 
+          `${this.hexInfo.x},${this.hexInfo.y},${this.hexInfo.z}`;
       });
 
       this.hexPath.mouseout(() => {
