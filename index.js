@@ -114,6 +114,12 @@
     build(width, height) {
       const board = new Board(this.grid.Hex);
       const rectangle = this.grid.rectangle({width, height});
+      let minX = null; 
+      let maxX = null; 
+      let minY = null; 
+      let maxY = null; 
+      let minZ = null; 
+      let maxZ = null;
 
       for(let hex of rectangle) {
         let {x, y, z} = hex;
@@ -124,11 +130,22 @@
         });
 
         let hexPath = ctx.path(this.createHexagon(hexPoints));
+
+        if(minX === null || x < minX) minX = x;
+        if(maxX === null || x > maxX) maxX = x;
+        if(minY === null || y < minY) minY = y;
+        if(maxY === null || y > maxY) maxY = y;
+        if(minZ === null || z < minZ) minZ = z;
+        if(maxZ === null || z > maxZ) maxZ = z;
         
         // store hex info
         hex.center = point;
         board.setHex(x, y, z, new BoardUnit(hexPath, hex, board));
       }
+
+      console.log(`Min X: ${minX}, Max X: ${maxX}`);
+      console.log(`Min Y: ${minY}, Max Y: ${maxY}`);
+      console.log(`Min Z: ${minZ}, Max Z: ${maxZ}`);
 
       return board;
     }
