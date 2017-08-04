@@ -12,5 +12,8 @@
     "chance": "^1.0.10",
     "honeycomb-grid": "^0.6.1",
     "snapsvg": "^0.5.1"
+  },
+  "devDependencies": {
+    "webpack": "^3.4.1"
   }
 }
